@@ -1,0 +1,59 @@
+#include <LiquidCrystal.h>
+// Initialize the LCD (RS = 12, EN = 11, D4 = 5, D5 = 4, D6 = 3, D7 = 2)
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+const int potPin = A0; // Potentiometer connected to A0
+const float supplyVoltage = 5.0; // Arduino supply voltage (5V)
+const int analogMax = 1023; // Maximum value from analogRead
+const float Rref = 10000.0; // Reference resistor (10K Ohms)
+float voltage; // Measured voltage across potentiometer
+float resistance; // Calculated resistance of the potentiometer
+float current;
+float power;
+void setup() {
+ lcd.begin(16, 2); // Initialize a 16x2 LCD
+ lcd.print("Initializing...");
+ delay(1000);
+ lcd.clear();
+}
+void loop() {
+ // Read the voltage from the potentiometer
+ int sensorValue = analogRead(potPin);
+ voltage = (sensorValue * supplyVoltage) / analogMax; // Convert analog reading to voltage
+
+ // Calculate potentiometer resistance using voltage divider formula
+ // Rpot = (Vout * Rref) / (Vin - Vout)
+ resistance = (voltage * Rref) / (supplyVoltage - voltage);
+
+ // Calculate current using Ohm's law: I = V / R
+ current = voltage / resistance;
+
+ // Calculate power: P = V * I
+ power = voltage * current;
+ // Clear the LCD before updating
+ lcd.clear();
+
+ // Display voltage and resistance on the first row
+ lcd.setCursor(0, 0);
+ lcd.print("V: ");
+ lcd.print(voltage);
+ lcd.print("V");
+
+ lcd.setCursor(9, 0);
+ lcd.print("R: ");
+ lcd.print(resistance);
+ lcd.print(" Ohm");
+
+ // Display current and power on the second row
+ lcd.setCursor(0, 1);
+ lcd.print("I: ");
+ lcd.print(current * 1000); // Convert to mA for readability
+ lcd.print("mA");
+
+ lcd.setCursor(10, 1);
+ lcd.print("P: ");
+ lcd.print(power * 1000); // Convert to mW
+ lcd.print("mW");
+
+ // Wait 500 milliseconds before the next update
+ delay(500);
+}
